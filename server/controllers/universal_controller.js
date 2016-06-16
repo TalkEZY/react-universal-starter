@@ -5,9 +5,6 @@ import { Provider } from "react-redux";
 import configureStore from "../../app/assets/shared/store";
 import { routes } from "../../app/assets/shared/routes";
 import env from "../utils/env";
-// Use rizzo-next import and delete local import when this issue is resolved:
-// https://github.com/lonelyplanet/dotcom-pois/issues/167
-// import MobileUtil from "rizzo-next/src/core/mobile_util";
 import MobileUtil from "../utils/mobileUtil";
 
 // Create a cache object for storing rendered react components
