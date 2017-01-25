@@ -113,7 +113,5 @@ module.exports = {
     extensions: [".js", ".jsx"],
     modules: ["app", "node_modules"],
   },
-  // Fallback to the node_modules directory if a loader can't be found
-  // Basically for when you `npm link rizzo-next`
   plugins,
 };
