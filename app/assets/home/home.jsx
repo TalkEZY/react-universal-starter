@@ -8,7 +8,7 @@ function HomeComponent() {
   return (
     <StyleRoot>
       <div className="PageContainer HomeComponent">
-        OH HAI
+        OH HAI!
       </div>
     </StyleRoot>
   );

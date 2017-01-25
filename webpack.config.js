@@ -10,27 +10,26 @@ require("es6-promise").polyfill();
 
 const path = require("path");
 const webpack = require("webpack");
-const fs = require("fs");
+const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
 
 // Setup webpack plugins
-const CommonsPlugin = new require("webpack/lib/optimize/CommonsChunkPlugin");
+const commons = new CommonsChunkPlugin({
+  name: "common",
+  minChunks: Infinity,
+})
 const provide = new webpack.ProvidePlugin({
   $: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
   jQuery: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
 });
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-
-let plugins = [
-  new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-gb|en-eu|eu/),
-  new webpack.optimize.OccurenceOrderPlugin(),
-  new CommonsPlugin({
-    name: "common",
-    minChunks: 3,
-  }),
+const plugins = [
+  commons,
   provide,
+  new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-gb|en-eu|eu/),
   new webpack.HotModuleReplacementPlugin(),
-  new ExtractTextPlugin("[name].css", {
+  new ExtractTextPlugin({
+    filename: "[name].css",
     disable: false,
     allChunks: true,
   }),
@@ -38,21 +37,30 @@ let plugins = [
     "process.env": {
       NODE_ENV: JSON.stringify("development"),
       ASSET_HOST: JSON.stringify(process.env.ASSET_HOST),
-      OPEN_PLANET_HOST: JSON.stringify(process.env.OPEN_PLANET_HOST),
     },
+    ENV_PROD: JSON.stringify(false),
   }),
 ];
 
 // Dynamically build entry files
 const basePath = path.join(__dirname, "app");
-const vendorPath = path.join(__dirname, "node_modules");
+const common = ["assets/common", "babel-polyfill"];
+
+if (process.env.NODE_ENV === "development") {
+  if (!process.env.NO_WEBPACK_MIDDLEWARE) {
+    common.unshift(`webpack-hot-middleware/client?${process.env.ASSET_HOST}`);
+  } else {
+    common.unshift(`webpack-dev-server/client?${process.env.ASSET_HOST}`);
+    common.unshift("webpack/hot/only-dev-server");
+  }
+
+  common.unshift("react-hot-loader/patch");
+}
 
 module.exports = {
-  debug: true,
-  progress: true,
   context: basePath,
   entry: {
-    common: ["webpack-hot-middleware/client", "assets/common"],
+    common,
     universal: "assets/universal",
     home: "assets/home",
   },
@@ -60,7 +68,7 @@ module.exports = {
     path: path.join(__dirname, "public", "assets"),
     filename: "[name].js",
     chunkFilename: "[name]_[chunkhash:20].js",
-    publicPath: "/assets/",
+    publicPath: `${process.env.ASSET_HOST}/assets/`,
     libraryTarget: "var",
   },
   module: {
@@ -70,60 +78,42 @@ module.exports = {
     //   loader: "eslint-loader",
     //   exclude: /node_modules/,
     // }],
-    loaders: [{
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract("style", "css")
-      }, {
-        test: /\.scss$/,
-        loader: ExtractTextPlugin.extract("style", "css" +
-          "!sass?outputStyle=expanded&" +
-          "includePaths[]=" + path.resolve(__dirname, "./node_modules")),
-      },
-      // Splitting out jsx for react-hot loader for now, had an issue where non JSX components
-      // weren't rendering.
-      {
-        test: /(\.jsx)$/,
-        loader: "react-hot!babel?presets[]=es2015," +
-          `presets[]=${require.resolve('babel-preset-stage-1')}&` +
-          "plugins[]=transform-decorators-legacy",
-        // Excluding everything EXCEPT rizzo-next and flamsteed
-        exclude: /node_modules\/(?!rizzo\-next|flamsteed).*/,
-      }, {
-        test: /(\.js)$/,
-        loader: "babel?presets[]=es2015," +
-          `presets[]=${require.resolve('babel-preset-stage-1')}&` +
-          "plugins[]=transform-decorators-legacy",
-        // Excluding everything EXCEPT rizzo-next and flamsteed
-        exclude: /node_modules\/(?!rizzo\-next|flamsteed).*/,
-      }, {
-        test: /\.json$/,
-        loader: "json",
-      }, {
-        test: /\.hbs$/,
-        // Fix a doozie of a bug where we were using the CJS version of the runtime
-        loader: "handlebars?runtime=" + require.resolve("handlebars/dist/handlebars.runtime") +
-          "&rootRelative=" + path.resolve(__dirname, "./node_modules/rizzo-next/src/") + "/"
-      }, {
-        test: /\.otf$|\.eot\??$|\.svg$|\.woff$|\.ttf$|\.png$/,
-        loader: "file?name=[name].[ext]",
-      }, {
-        test: /picker(.date)?.js$/,
-        loader: "imports?define=>false",
-      }, {
-        test: /jquery.dfp$/,
-        loader: "imports?define=>false",
-      }
-    ],
+    rules: [{
+      test: /\.css$/,
+      loader: ExtractTextPlugin.extract({
+        fallbackLoader: "style-loader",
+        loader: "css-loader",
+      }),
+    }, {
+      test: /\.scss$/,
+      loader: ExtractTextPlugin.extract({
+        fallbackLoader: "style-loader",
+        loader: [
+          "css-loader",
+          `sass-loader?outputStyle=expanded&includePaths[]=${path.resolve(__dirname, "./node_modules")}`,
+        ],
+      }),
+    }, {
+      test: /(\.jsx?)$/,
+      exclude: /node_modules/,
+      use: [
+        "babel-loader",
+      ],
+    }, {
+      test: /\.hbs$/,
+      // Fix a doozie of a bug where we were using the CJS version of the runtime
+      loader: "handlebars-loader?runtime=" + require.resolve("handlebars/dist/handlebars.runtime") +
+        "&rootRelative=" + path.resolve(__dirname, "./node_modules/rizzo-next/src/") + "/",
+    }, {
+      test: /\.otf$|\.eot\??$|\.svg$|\.woff$|\.ttf$|\.png$/,
+      loader: "file-loader?name=[name].[ext]",
+    }],
   },
   resolve: {
-    extensions: ["", ".js", ".jsx"],
-    root: [basePath, vendorPath],
-    fallback: path.join(__dirname, "node_modules"),
+    extensions: [".js", ".jsx"],
+    modules: ["app", "node_modules"],
   },
   // Fallback to the node_modules directory if a loader can't be found
   // Basically for when you `npm link rizzo-next`
-  resolveLoader: {
-    fallback: path.join(__dirname, "node_modules"),
-  },
-  plugins: plugins,
+  plugins,
 };

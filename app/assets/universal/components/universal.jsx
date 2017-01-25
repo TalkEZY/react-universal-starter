@@ -11,7 +11,7 @@ export class PlacesComponent extends React.Component {
   render() {
     return (
       <div className="PageContainer">
-        <Heading>Hello World</Heading>
+        <Heading>Hello World!</Heading>
       </div>
     );
   }

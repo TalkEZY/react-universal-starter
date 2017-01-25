@@ -27,17 +27,13 @@ module.exports = (app) => {
     res.render("error", locals);
   });
 
-  if (!process.env.NO_WEBPACK) {
+  if (!process.env.NO_WEBPACK_MIDDLEWARE) {
     const compiler = webpack(config);
 
     app.use(webpackDevMiddleware(compiler, {
       publicPath: config.output.publicPath,
       contentBase: "/public",
       stats: { colors: true },
-      watchOptions: {
-        aggregateTimeout: 300,
-        poll: true,
-      },
     }));
 
     app.use(require("webpack-hot-middleware")(compiler));

@@ -1,19 +1,17 @@
 import "./common.scss";
-import "rizzo-next/src/components/analytics";
-import rizzo from "rizzo-next";
-import GlobalHeader from "rizzo-next/src/components/header";
-import GlobalFooter from "rizzo-next/src/components/footer";
+import rizzo from "rizzo-next/dist/rizzo";
+import GlobalHeader from "rizzo-next/dist/components/header";
+import GlobalFooter from "rizzo-next/dist/components/footer";
 import FastClick from "fastclick";
-import "rizzo-next/src/core/utils/preload";
-import "rizzo-next/src/core/utils/detect_swipe";
-import "rizzo-next/src/core/event_tracker";
-import "rizzo-next/src/components/ads";
-import "rizzo-next/src/components/svg_icons";
-import CookieUtil from "rizzo-next/src/core/cookie_util";
-import postal from "postal/lib/postal.lodash";
-import LoginManager from "rizzo-next/src/components/login/login_manager";
-import AdManager from "rizzo-next/src/core/ads/ad_manager";
-import Alert from "rizzo-next/src/components/alert";
+import CookieUtil from "rizzo-next/dist/core/cookie_util";
+import LoginManager from "rizzo-next/dist/components/login/login_manager";
+import AdManager from "rizzo-next/dist/core/ads/ad_manager";
+import Alert from "rizzo-next/dist/components/alert";
+import "rizzo-next/dist/core/utils/preload";
+import "rizzo-next/dist/core/utils/detect_swipe";
+import "rizzo-next/dist/core/event_tracker";
+import "rizzo-next/dist/components/ads";
+import "rizzo-next/dist/components/svg_icons";
 import "rc-slider/assets/index.css";
 
 window.LP = window.LP || {};
@@ -21,8 +19,6 @@ window.LP.loginManager = new LoginManager();
 
 // Create LP namespace if it isn"t there already
 window.lp = window.lp || {};
-window.lp.ads = window.lp.ads || {};
-window.lp.ads.manager = new AdManager(window.lp.ads).initialize();
 
 rizzo.renderComponent(GlobalHeader, ".lp-global-header");
 rizzo.renderComponent(GlobalFooter, ".lp-global-footer");
@@ -31,19 +27,9 @@ FastClick.attach(document.body);
 
 if (process.env.NODE_ENV === "production") {
   require("trackjs");
-
-  window.onerror = function onerror(message, file, line, col) {
-    rizzo.logger.error({
-      message,
-      file,
-      line,
-      col,
-    });
-  };
 }
 
 const cookie = new CookieUtil();
-cookie.setCookie("destinations-next-cookie", true, 14);
 
 // Show cookie notification for EU users
 if (cookie.getCookie("lpCurrency") && cookie.getCookie("lpCurrency").match(/GBP|EUR/)) {
@@ -59,13 +45,9 @@ if (cookie.getCookie("lpCurrency") && cookie.getCookie("lpCurrency").match(/GBP|
   });
 }
 
-if (process.env.NODE_ENV === "development") {
-  postal.addWireTap((data, envelope) => {
-    console.log(JSON.stringify(envelope));
-  });
-}
-
 $.support.cors = true;
 
 window.jQuery = $;
+window.$ = $;
+
 $.detectSwipe.preventDefault = false;
