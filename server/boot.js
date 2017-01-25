@@ -8,9 +8,6 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const utilityRoutes = require("./routes/utility");
-const Promise = require("bluebird");
-
-global.Promise = Promise;
 
 const app = express();
 
