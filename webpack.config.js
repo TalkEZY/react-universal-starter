@@ -1,9 +1,6 @@
 "use strict";
 
 /* jshint node:true */
-// TODO: This can eventually be removed, but not yet...
-// https://github.com/jtangelder/sass/pull/132/files
-process.env.UV_THREADPOOL_SIZE = 100;
 
 require("dotenv").config({ path: (process.env.ENV_PATH || ".env") });
 require("es6-promise").polyfill();
@@ -73,11 +70,6 @@ module.exports = {
   },
   module: {
     noParse: /node_modules\/(jquery)$/,
-    // preLoaders: [{
-    //   test: /\.jsx?$/,
-    //   loader: "eslint-loader",
-    //   exclude: /node_modules/,
-    // }],
     rules: [{
       test: /\.css$/,
       loader: ExtractTextPlugin.extract({

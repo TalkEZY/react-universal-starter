@@ -1,17 +1,8 @@
 import { createStore, applyMiddleware, compose } from "redux";
+import thunk from "redux-thunk";
 import DevTools from "./containers/devTools";
 import reducers from "./reducers";
-import thunk from "redux-thunk";
-
-// Logging middleware
-const logger = store => next => action => {
-  const result = next(action);
-
-  console.log("dispatching", action.type ? action.type : action.toString());
-  // console.log("next state", store.getState());
-
-  return result;
-};
+import logger from "./middleware/logger";
 
 function configureStore(initialState) {
   const store = createStore(
@@ -19,10 +10,10 @@ function configureStore(initialState) {
     initialState,
     compose(
       applyMiddleware(logger, thunk),
-      // (typeof window !== "undefined" && window.devToolsExtension) ?
-      //   window.devToolsExtension() :
-      //   DevTools.instrument(),
-    )
+      (typeof window !== "undefined" && window.devToolsExtension) ?
+        window.devToolsExtension() :
+        DevTools.instrument(),
+    ),
   );
 
   if (process.env.NODE_ENV === "development" && module.hot) {

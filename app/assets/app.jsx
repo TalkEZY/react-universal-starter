@@ -47,13 +47,11 @@ export class AppComponent extends React.Component {
 
 AppComponent.propTypes = {
   userAgent: React.PropTypes.string,
-
   children: React.PropTypes.object,
-
   dispatch: React.PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   userAgent: state.userAgent,
 });
 

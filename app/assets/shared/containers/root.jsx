@@ -12,6 +12,6 @@ export default function Root({ store, history }) {
 }
 
 Root.propTypes = {
-  store: React.PropTypes.objectOf({}).isRequired,
-  history: React.PropTypes.objectOf({}).isRequired,
+  store: React.PropTypes.any.isRequired,
+  history: React.PropTypes.any.isRequired,
 };
