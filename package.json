@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "babel": "NODE_ENV=production babel -d dist/server server && NODE_ENV=production babel -d dist/app app",
-    "build": "npm run babel && npm run copy && NODE_ENV=production npm run webpack -- --config webpack.config.prod",
+    "build": "npm run babel && NODE_ENV=production npm run webpack -- --config webpack.config.prod",
     "ci": "NO_WEBPACK_MIDDLEWARE=true ASSET_HOST=http://localhost:8081 node ./bin/devserver",
-    "copy": "cp -R server/fixtures dist/server",
     "lint": "eslint app --ext .js,.jsx",
     "prebuild": "rimraf dist/* && rimraf public/assets/*",
     "start:ci": "ASSET_HOST=http://localhost:8081 NO_WEBPACK_MIDDLEWARE=true nodemon --watch server --watch app ./node_modules/.bin/babel-node ./bin/www",
