@@ -1,5 +1,5 @@
 {
-  "name": "dotcom-video",
+  "name": "react-universal-starter",
   "version": "0.2.0",
   "scripts": {
     "babel": "NODE_ENV=production babel -d dist/server server && NODE_ENV=production babel -d dist/app app",
