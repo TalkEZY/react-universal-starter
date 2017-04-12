@@ -1,6 +1,6 @@
 {
   "name": "react-universal-starter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scripts": {
     "babel": "NODE_ENV=production babel -d dist/server server && NODE_ENV=production babel -d dist/app app",
     "build": "npm run babel && npm run copy && NODE_ENV=production npm run webpack -- --config webpack.config.prod",
