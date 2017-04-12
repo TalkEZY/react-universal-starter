@@ -1,6 +1,6 @@
 import React from "react";
 import { shallow } from "enzyme";
-import Universal from "../../app/assets/universal/components/universal";
+import Universal from "../../app/universal/components/universal";
 import { createStore } from "redux";
 import { TestMode } from "radium";
 import { expect } from "chai";

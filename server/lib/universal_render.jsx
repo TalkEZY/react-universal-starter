@@ -1,9 +1,11 @@
 import React from "react";
 import { renderToString } from "react-dom/server";
 
-export default function render({ Component, store, routerContextProps }) {
+export default function render({ Component, store, location }) {
+  const markup = renderToString(<Component store={store} location={location} />);
+
   return {
-    markup: renderToString(<Component store={store} props={routerContextProps} />),
+    markup,
     __initialState: JSON.stringify(store.getState()),
   };
 }

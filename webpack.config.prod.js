@@ -13,7 +13,7 @@ config.plugins = [
   new webpack.optimize.DedupePlugin(),
   new webpack.ProvidePlugin({
     $: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
-    jQuery: path.join(__dirname, "node_modules", "jquery/dist/jquery")
+    jQuery: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
   }),
   new ManifestPlugin(),
   new webpack.optimize.UglifyJsPlugin({
@@ -30,15 +30,11 @@ config.plugins = [
     "process.env": {
       NODE_ENV: JSON.stringify("production"),
       ASSET_HOST: JSON.stringify(process.env.ASSET_HOST),
-      OPEN_PLANET_HOST: JSON.stringify(process.env.OPEN_PLANET_HOST),
     },
   }),
 ];
 
-config.entry.common = ["assets/common"];
-config.debug = false;
-config.progress = false;
+config.entry.common = ["babel-polyfill", "assets/common"];
 config.output.filename = "[name].[chunkhash:20].js";
-config.devtool = null;
 
 module.exports = config;

@@ -25,7 +25,10 @@
     "no-unused-vars": [2],
     "semi": [1, "always"],
     "no-use-before-define": [2],
-    "no-undef": [2]
+    "no-undef": [2],
+    "react/no-unused-prop-types": [0],
+    "react/sort-comp": [0],
+    "import/prefer-default-export": [0]
   },
   "plugins": [
     "react"

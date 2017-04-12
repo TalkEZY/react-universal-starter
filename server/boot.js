@@ -1,34 +1,21 @@
 /* global process,__dirname */
 const env = process.env.NODE_ENV || "development";
 
+const fs = require("fs");
 const express = require("express");
 const helmet = require('helmet');
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const promBundle = require("express-prom-bundle");
 const utilityRoutes = require("./routes/utility");
 
 const app = express();
 
-const exphbs = require("express-handlebars");
-const helpers = require("./lib/helpers");
-const hbs = exphbs.create({
-  helpers,
-  defaultLayout: "main",
-  layoutsDir: "app/layouts",
-  partialsDir: [
-    "node_modules/rizzo-next/src",
-    "app",
-  ],
-  extname: ".hbs",
-});
-
-app.set("views", "app");
-
-// Register `hbs` as our view engine using its bound `engine()` function.
-app.engine("hbs", hbs.engine);
-app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "../app"));
+app.set("view engine", "jsx");
+app.engine("jsx", require("express-react-views").createEngine());
 
 app.use(helmet());
 app.use(bodyParser.json());
@@ -37,18 +24,21 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "node_modules/rizzo-next/dist")));
 app.use(cors());
+app.use(promBundle({
+  includePath: true,
+  includeMethod: true,
+}));
+
+const header = fs.readFileSync(path.join(__dirname, "../node_modules/rizzo-next/dist/header.html"));
+const footer = fs.readFileSync(path.join(__dirname, "../node_modules/rizzo-next/dist/footer.html"));
 
 app.use((req, res, next) => {
-  const data = require("rizzo-next/lib/data/default.json");
-
-  data.components.header.type = "narrow";
-
   Object.assign(res.locals, {
-    footer: data.components.footer,
-    show_header: true,
-    header: data.components.header,
-    asset_root: process.env.ASSET_HOST,
+    header: header.toString(),
+    footer: footer.toString(),
+    query: req.query,
   });
+
   next();
 });
 

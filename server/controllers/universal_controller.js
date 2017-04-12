@@ -1,7 +1,6 @@
-import match from "match-middleware";
-import configureStore from "../../app/assets/shared/store";
-import UniversalRoot from "../../app/assets/shared/containers/universal_root";
-import { routes } from "../../app/assets/shared/routes";
+import { matchPath } from "react-router";
+import configureStore from "../../app/shared/store";
+import UniversalRoot from "../../app/shared/containers/universal_root";
 import render from "../lib/universal_render";
 import env from "../utils/env";
 
@@ -11,26 +10,40 @@ const cache = Object.create(null);
 // Fetch the POI before every handler in this controller
 const before = (req, res, next) => next();
 
+const routes = [
+  "/",
+  "/universal",
+];
+
+const matchMiddle = (req, res, next) => {
+  const match = routes.reduce((acc, route) =>
+    matchPath(req.url, route, { exact: true }) || acc, null,
+  );
+
+  if (!match) {
+    res.status(404).send("Not found");
+    return;
+  }
+
+  next();
+};
+
 /**
  * get /universal
  */
 const show = {
   method: "get",
   route: "/universal",
-  middleware: [match(routes)],
+  middleware: [matchMiddle],
   handler: {
     html(req, res) {
-      if (env.production && cache[req.url]) {
-        return res.render("index", cache[req.url]);
-      }
-
       const store = configureStore({
         userAgent: req.headers["user-agent"],
       });
 
       const locals = render({
         Component: UniversalRoot,
-        routerContextProps: req.props,
+        location: req.url,
         store,
       });
 

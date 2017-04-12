@@ -1,9 +1,6 @@
 "use strict";
 
-/* jshint node:true */
-
 require("dotenv").config({ path: (process.env.ENV_PATH || ".env") });
-require("es6-promise").polyfill();
 
 const path = require("path");
 const webpack = require("webpack");
@@ -12,8 +9,8 @@ const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
 // Setup webpack plugins
 const commons = new CommonsChunkPlugin({
   name: "common",
-  minChunks: Infinity,
-})
+  minChunks: 2,
+});
 const provide = new webpack.ProvidePlugin({
   $: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
   jQuery: path.join(__dirname, "node_modules", "jquery/dist/jquery"),
@@ -23,7 +20,6 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const plugins = [
   commons,
   provide,
-  new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-gb|en-eu|eu/),
   new webpack.HotModuleReplacementPlugin(),
   new ExtractTextPlugin({
     filename: "[name].css",
@@ -39,27 +35,21 @@ const plugins = [
   }),
 ];
 
-// Dynamically build entry files
-const basePath = path.join(__dirname, "app");
-const common = ["assets/common", "babel-polyfill"];
+const common = ["react-hot-loader/patch", "common", "babel-polyfill"];
 
-if (process.env.NODE_ENV === "development") {
-  if (!process.env.NO_WEBPACK_MIDDLEWARE) {
-    common.unshift(`webpack-hot-middleware/client?${process.env.ASSET_HOST}`);
-  } else {
-    common.unshift(`webpack-dev-server/client?${process.env.ASSET_HOST}`);
-    common.unshift("webpack/hot/only-dev-server");
-  }
-
-  common.unshift("react-hot-loader/patch");
+if (!process.env.NO_WEBPACK_MIDDLEWARE) {
+  common.unshift(`webpack-hot-middleware/client?${process.env.ASSET_HOST}`);
+} else {
+  common.unshift(`webpack-dev-server/client?${process.env.ASSET_HOST}`);
+  common.unshift("webpack/hot/only-dev-server");
 }
 
 module.exports = {
-  context: basePath,
+  context: path.join(__dirname, "app"),
   entry: {
     common,
-    universal: "assets/universal",
-    home: "assets/home",
+    universal: "universal/client",
+    home: "home/client",
   },
   output: {
     path: path.join(__dirname, "public", "assets"),
@@ -72,18 +62,9 @@ module.exports = {
     noParse: /node_modules\/(jquery)$/,
     rules: [{
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract({
-        fallbackLoader: "style-loader",
-        loader: "css-loader",
-      }),
-    }, {
-      test: /\.scss$/,
-      loader: ExtractTextPlugin.extract({
-        fallbackLoader: "style-loader",
-        loader: [
-          "css-loader",
-          `sass-loader?outputStyle=expanded&includePaths[]=${path.resolve(__dirname, "./node_modules")}`,
-        ],
+      use: ExtractTextPlugin.extract({
+        fallback: "style-loader",
+        use: "css-loader",
       }),
     }, {
       test: /(\.jsx?)$/,
@@ -94,11 +75,10 @@ module.exports = {
     }, {
       test: /\.hbs$/,
       // Fix a doozie of a bug where we were using the CJS version of the runtime
-      loader: "handlebars-loader?runtime=" + require.resolve("handlebars/dist/handlebars.runtime") +
-        "&rootRelative=" + path.resolve(__dirname, "./node_modules/rizzo-next/src/") + "/",
+      use: `handlebars-loader?&rootRelative=${path.resolve(__dirname, "./node_modules/rizzo-next/src/")}/`,
     }, {
       test: /\.otf$|\.eot\??$|\.svg$|\.woff$|\.ttf$|\.png$/,
-      loader: "file-loader?name=[name].[ext]",
+      use: "file-loader?name=[name].[ext]",
     }],
   },
   resolve: {
