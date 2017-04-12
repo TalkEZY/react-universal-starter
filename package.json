@@ -1,6 +1,6 @@
 {
   "name": "dotcom-video",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "babel": "NODE_ENV=production babel -d dist/server server && NODE_ENV=production babel -d dist/app app",
     "build": "npm run babel && npm run copy && NODE_ENV=production npm run webpack -- --config webpack.config.prod",
