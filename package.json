@@ -87,6 +87,7 @@
     "glob": "^7.0.3",
     "handlebars-loader": "^1.1.4",
     "imports-loader": "^0.7.0",
+    "jest": "^19.0.2",
     "json-loader": "^0.5.4",
     "morgan": "^1.7.0",
     "node-sass-middleware": "^0.11.0",
@@ -101,5 +102,17 @@
     "webpack-dev-middleware": "^1.5.1",
     "webpack-hot-middleware": "^2.10.0",
     "webpack-manifest-plugin": "^1.0.0"
+  },
+  "jest": {
+    "testRegex": "/spec/.*\\.(js|jsx)$",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json"
+    ],
+    "setupFiles": [
+      "./test-setup.js"
+    ]
   }
 }
