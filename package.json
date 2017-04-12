@@ -1,6 +1,7 @@
 {
   "name": "react-universal-starter",
   "version": "0.2.1",
+  "private": true,
   "scripts": {
     "babel": "NODE_ENV=production babel -d dist/server server && NODE_ENV=production babel -d dist/app app",
     "build": "npm run babel && npm run copy && NODE_ENV=production npm run webpack -- --config webpack.config.prod",
@@ -14,7 +15,8 @@
     "test": "NODE_ENV=test jest",
     "test:ci": "npm run test -- --watch --notify",
     "test:coverage": "npm run test -- --coverage && open ./coverage/lcov-report/index.html",
-    "webpack": "webpack --bail"
+    "webpack": "webpack --bail",
+    "version": "standard-version"
   },
   "pre-commit": [
     "test"
